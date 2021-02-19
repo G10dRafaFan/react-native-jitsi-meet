@@ -58,6 +58,11 @@ public class RNJitsiMeetModule extends ReactContextBaseJavaModule {
                             .setAudioOnly(false)
                             .setUserInfo(_userInfo)
                             .build();
+                            .setFeatureFlag("add-people.enabled", false)
+                            .setFeatureFlag("live-streaming.enabled", false)
+                            .setFeatureFlag("meeting-password.enabled", false)
+                            .setFeatureFlag("recording.enabled", false)
+                            .setFeatureFlag("invite.enabled", false)
                     mJitsiMeetViewReference.getJitsiMeetView().join(options);
                 }
             }
@@ -91,6 +96,11 @@ public class RNJitsiMeetModule extends ReactContextBaseJavaModule {
                             .setAudioOnly(true)
                             .setUserInfo(_userInfo)
                             .build();
+                            .setFeatureFlag("add-people.enabled", false)
+                            .setFeatureFlag("live-streaming.enabled", false)
+                            .setFeatureFlag("meeting-password.enabled", false)
+                            .setFeatureFlag("recording.enabled", false)
+                            .setFeatureFlag("invite.enabled", false)
                     mJitsiMeetViewReference.getJitsiMeetView().join(options);
                 }
             }
