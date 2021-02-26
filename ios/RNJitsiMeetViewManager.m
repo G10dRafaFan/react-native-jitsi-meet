@@ -10,6 +10,7 @@ RCT_EXPORT_MODULE(RNJitsiMeetView)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceJoined, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceTerminated, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceWillJoin, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onParticipantLeft, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onEnteredPip, RCTBubblingEventBlock)
 
 - (UIView *)view
@@ -49,6 +50,14 @@ RCT_EXPORT_METHOD(call:(NSString *)urlString userInfo:(NSDictionary *)userInfo)
             [builder setFeatureFlag:@"live-streaming.enabled" withBoolean:NO];
             [builder setFeatureFlag:@"meeting-password.enabled" withBoolean:NO];
             [builder setFeatureFlag:@"invite.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"chat.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"meeting-name.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"raise-hand.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"video-share.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"close-captions.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"resolution" withValue:@(480)];
+
+             
         }];
         [jitsiMeetView join:options];
     });
@@ -80,6 +89,12 @@ RCT_EXPORT_METHOD(audioCall:(NSString *)urlString userInfo:(NSDictionary *)userI
             [builder setFeatureFlag:@"live-streaming.enabled" withBoolean:NO];
             [builder setFeatureFlag:@"meeting-password.enabled" withBoolean:NO];
             [builder setFeatureFlag:@"invite.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"chat.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"meeting-name.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"raise-hand.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"video-share.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"close-captions.enabled" withBoolean:NO];
+            [builder setFeatureFlag:@"resolution" withValue:@(480)];
         }];
         [jitsiMeetView join:options];
     });
@@ -119,6 +134,15 @@ RCT_EXPORT_METHOD(endCall)
     }
 
     jitsiMeetView.onConferenceWillJoin(data);
+}
+
+- (void)participantLeft:(NSDictionary *)data {
+    RCTLogInfo(@"onParticipantLeft will join");
+    if (!jitsiMeetView.onParticipantLeft) {
+        return;
+    }
+
+    jitsiMeetView.onParticipantLeft(data);
 }
 
 - (void)enterPictureInPicture:(NSDictionary *)data {
