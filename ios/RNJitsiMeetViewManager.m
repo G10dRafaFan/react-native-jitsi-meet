@@ -10,6 +10,7 @@ RCT_EXPORT_MODULE(RNJitsiMeetView)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceJoined, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceTerminated, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceWillJoin, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onParticipantLeft, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onEnteredPip, RCTBubblingEventBlock)
 
 - (UIView *)view
@@ -133,6 +134,15 @@ RCT_EXPORT_METHOD(endCall)
     }
 
     jitsiMeetView.onConferenceWillJoin(data);
+}
+
+- (void)onParticipantLeft:(NSDictionary *)data {
+    RCTLogInfo(@"onParticipantLeft will left");
+    if (!jitsiMeetView.onConferenceWillJoin) {
+        return;
+    }
+
+    jitsiMeetView.onParticipantLeft(data);
 }
 
 
