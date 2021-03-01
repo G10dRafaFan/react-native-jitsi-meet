@@ -10,6 +10,7 @@ RCT_EXPORT_MODULE(RNJitsiMeetView)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceJoined, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceTerminated, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceWillJoin, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onParticipantLeft, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onEnteredPip, RCTBubblingEventBlock)
 
 - (UIView *)view
