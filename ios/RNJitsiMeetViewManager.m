@@ -1,6 +1,6 @@
 #import "RNJitsiMeetViewManager.h"
 #import "RNJitsiMeetView.h"
-#import <JitsiMeet/JitsiMeetUserInfo.h>
+#import <JitsiMeetSDK/JitsiMeetUserInfo.h>
 
 @implementation RNJitsiMeetViewManager{
     RNJitsiMeetView *jitsiMeetView;
@@ -10,7 +10,6 @@ RCT_EXPORT_MODULE(RNJitsiMeetView)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceJoined, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceTerminated, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onConferenceWillJoin, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onParticipantLeft, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onEnteredPip, RCTBubblingEventBlock)
 
 - (UIView *)view
@@ -25,7 +24,7 @@ RCT_EXPORT_METHOD(initialize)
     RCTLogInfo(@"Initialize is deprecated in v2");
 }
 
-RCT_EXPORT_METHOD(call:(NSString *)urlString userInfo:(NSDictionary *)userInfo)
+RCT_EXPORT_METHOD(call:(NSString *)urlString userInfo:(NSDictionary *)userInfo featureFlags:(NSDictionary *)featureFlags)
 {
     RCTLogInfo(@"Load URL %@", urlString);
     JitsiMeetUserInfo * _userInfo = [[JitsiMeetUserInfo alloc] init];
@@ -45,25 +44,16 @@ RCT_EXPORT_METHOD(call:(NSString *)urlString userInfo:(NSDictionary *)userInfo)
         JitsiMeetConferenceOptions *options = [JitsiMeetConferenceOptions fromBuilder:^(JitsiMeetConferenceOptionsBuilder *builder) {        
             builder.room = urlString;
             builder.userInfo = _userInfo;
-            [builder setFeatureFlag:@"add-people.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"ios.recording.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"live-streaming.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"meeting-password.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"invite.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"chat.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"meeting-name.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"raise-hand.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"video-share.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"close-captions.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"resolution" withValue:@(480)];
-
-             
+            for (NSString* key in featureFlags) {
+                id value = featureFlags[key];
+                [builder setFeatureFlag:key withValue:value];
+            }
         }];
         [jitsiMeetView join:options];
     });
 }
 
-RCT_EXPORT_METHOD(audioCall:(NSString *)urlString userInfo:(NSDictionary *)userInfo)
+RCT_EXPORT_METHOD(audioCall:(NSString *)urlString userInfo:(NSDictionary *)userInfo featureFlags:(NSDictionary *)featureFlags)
 {
     RCTLogInfo(@"Load Audio only URL %@", urlString);
     JitsiMeetUserInfo * _userInfo = [[JitsiMeetUserInfo alloc] init];
@@ -84,17 +74,10 @@ RCT_EXPORT_METHOD(audioCall:(NSString *)urlString userInfo:(NSDictionary *)userI
             builder.room = urlString;
             builder.userInfo = _userInfo;
             builder.audioOnly = YES;
-            [builder setFeatureFlag:@"add-people.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"ios.recording.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"live-streaming.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"meeting-password.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"invite.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"chat.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"meeting-name.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"raise-hand.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"video-share.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"close-captions.enabled" withBoolean:NO];
-            [builder setFeatureFlag:@"resolution" withValue:@(480)];
+            for (NSString* key in featureFlags) {
+                id value = featureFlags[key];
+                [builder setFeatureFlag:key withValue:value];
+            }
         }];
         [jitsiMeetView join:options];
     });
@@ -136,15 +119,14 @@ RCT_EXPORT_METHOD(endCall)
     jitsiMeetView.onConferenceWillJoin(data);
 }
 
-- (void)onParticipantLeft:(NSDictionary *)data {
-    RCTLogInfo(@"onParticipantLeft will left");
-    if (!jitsiMeetView.onConferenceWillJoin) {
+- (void)participantLeft:(NSDictionary *)data {
+    RCTLogInfo(@"Participant Left will join");
+    if (!jitsiMeetView.onParticipantLeft) {
         return;
     }
 
     jitsiMeetView.onParticipantLeft(data);
 }
-
 
 - (void)enterPictureInPicture:(NSDictionary *)data {
     RCTLogInfo(@"Enter Picture in Picture");
