@@ -15,6 +15,7 @@ class RNOngoingConferenceTracker {
 
     private static final String CONFERENCE_WILL_JOIN = "CONFERENCE_WILL_JOIN";
     private static final String CONFERENCE_TERMINATED = "CONFERENCE_TERMINATED";
+    private static final String PARTICIPANT_LEFT = "PARTICIPANT_LEFT";
 
     private final Collection<OngoingConferenceListener> listeners =
             Collections.synchronizedSet(new HashSet<OngoingConferenceListener>());
@@ -58,6 +59,13 @@ class RNOngoingConferenceTracker {
                     updateListeners();
                 }
                 break;
+
+            case PARTICIPANT_LEFT:
+                if (url.equals(currentConference)) {
+                    currentConference = null;
+                    updateListeners();
+                }
+                break;    
         }
     }
 
