@@ -1,4 +1,20 @@
-package com.reactnativejitsimeet;
+/*
+ * Copyright @ 2017-present 8x8, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.reactnativejitsimeet.sdk;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -7,25 +23,21 @@ import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReadableMap;
 
-import com.reactnativejitsimeet.sdk.BaseReactView;
-import com.reactnativejitsimeet.sdk.JitsiMeet;
-import com.reactnativejitsimeet.sdk.JitsiMeetViewListener;
-import com.reactnativejitsimeet.sdk.ListenerUtils;
 import com.reactnativejitsimeet.sdk.log.JitsiMeetLogger;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 
 
-public class RNJitsiMeetView extends BaseReactView<JitsiMeetViewListener>
-        implements RNOngoingConferenceTracker.OngoingConferenceListener {
+public class JitsiMeetView extends BaseReactView<JitsiMeetViewListener>
+        implements OngoingConferenceTracker.OngoingConferenceListener {
 
     /**
      * The {@code Method}s of {@code JitsiMeetViewListener} by event name i.e.
      * redux action types.
      */
     private static final Map<String, Method> LISTENER_METHODS
-            = ListenerUtils.mapListenerMethods(JitsiMeetViewListener.class);
+        = ListenerUtils.mapListenerMethods(JitsiMeetViewListener.class);
 
     /**
      * The URL of the current conference.
@@ -81,15 +93,21 @@ public class RNJitsiMeetView extends BaseReactView<JitsiMeetViewListener>
         return result;
     }
 
-    public RNJitsiMeetView(@NonNull Context context) {
+    public JitsiMeetView(@NonNull Context context) {
         super(context);
 
-        RNOngoingConferenceTracker.getInstance().addListener(this);
+        // Check if the parent Activity implements JitsiMeetActivityInterface,
+        // otherwise things may go wrong.
+        if (!(context instanceof JitsiMeetActivityInterface)) {
+            throw new RuntimeException("Enclosing Activity must implement JitsiMeetActivityInterface");
+        }
+
+        OngoingConferenceTracker.getInstance().addListener(this);
     }
 
     @Override
     public void dispose() {
-        RNOngoingConferenceTracker.getInstance().removeListener(this);
+        OngoingConferenceTracker.getInstance().removeListener(this);
         super.dispose();
     }
 
@@ -103,16 +121,28 @@ public class RNJitsiMeetView extends BaseReactView<JitsiMeetViewListener>
      * page.
      */
     public void enterPictureInPicture() {
-        JitsiMeetLogger.e("PiP not supported");
+        PictureInPictureModule pipModule
+            = ReactInstanceManagerHolder.getNativeModule(
+                PictureInPictureModule.class);
+        if (pipModule != null
+                && pipModule.isPictureInPictureSupported()
+                && !JitsiMeetActivityDelegate.arePermissionsBeingRequested()
+                && this.url != null) {
+            try {
+                pipModule.enterPictureInPicture();
+            } catch (RuntimeException re) {
+                JitsiMeetLogger.e(re, "Failed to enter PiP mode");
+            }
+        }
     }
 
     /**
-     * Joins the conference specified by the given {@link RNJitsiMeetConferenceOptions}. If there is
+     * Joins the conference specified by the given {@link JitsiMeetConferenceOptions}. If there is
      * already an active conference, it will be left and the new one will be joined.
      * @param options - Description of what conference must be joined and what options will be used
      *                when doing so.
      */
-    public void join(@Nullable RNJitsiMeetConferenceOptions options) {
+    public void join(@Nullable JitsiMeetConferenceOptions options) {
         setProps(options != null ? options.asProps() : new Bundle());
     }
 
@@ -129,7 +159,7 @@ public class RNJitsiMeetView extends BaseReactView<JitsiMeetViewListener>
      */
     private void setProps(@NonNull Bundle newProps) {
         // Merge the default options with the newly provided ones.
-        Bundle props = mergeProps(new Bundle(), newProps);
+        Bundle props = mergeProps(JitsiMeet.getDefaultProps(), newProps);
 
         // XXX The setProps() method is supposed to be imperative i.e.
         // a second invocation with one and the same URL is expected to join
@@ -146,7 +176,7 @@ public class RNJitsiMeetView extends BaseReactView<JitsiMeetViewListener>
     }
 
     /**
-     * Handler for {@link RNOngoingConferenceTracker} events.
+     * Handler for {@link OngoingConferenceTracker} events.
      * @param conferenceUrl
      */
     @Override
@@ -160,13 +190,21 @@ public class RNJitsiMeetView extends BaseReactView<JitsiMeetViewListener>
     }
 
     /**
+     * Handler for {@link ExternalAPIModule} events.
      *
      * @param name The name of the event.
      * @param data The details/specifics of the event to send determined
      * by/associated with the specified {@code name}.
      */
     @Override
+    @Deprecated
     protected void onExternalAPIEvent(String name, ReadableMap data) {
         onExternalAPIEvent(LISTENER_METHODS, name, data);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        dispose();
+        super.onDetachedFromWindow();
     }
 }
