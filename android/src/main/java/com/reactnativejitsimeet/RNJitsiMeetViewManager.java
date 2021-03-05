@@ -10,7 +10,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.facebook.react.module.annotations.ReactModule;
 
-import org.jitsi.meet.sdk.JitsiMeetViewListener;
+import com.reactnativejitsimeet.sdk.JitsiMeetViewListener;
 
 import java.util.Map;
 
@@ -70,11 +70,31 @@ public class RNJitsiMeetViewManager extends SimpleViewManager<RNJitsiMeetView> i
                 event);
     }
 
+    public void onParticipantLeft(Map<String, Object> data) {
+        WritableMap event = Arguments.createMap();
+        event.putString("url", (String) data.get("url"));
+        mReactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                mJitsiMeetViewReference.getJitsiMeetView().getId(),
+                "participantLeft",
+                event);
+    }
+    
+    public void onParticipantJoined(Map<String, Object> data) {
+        WritableMap event = Arguments.createMap();
+        event.putString("url", (String) data.get("url"));
+        mReactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                mJitsiMeetViewReference.getJitsiMeetView().getId(),
+                "participantJoined",
+                event);
+    }
+
     public Map getExportedCustomBubblingEventTypeConstants() {
         return MapBuilder.builder()
                 .put("conferenceJoined", MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onConferenceJoined")))
                 .put("conferenceTerminated", MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onConferenceTerminated")))
                 .put("conferenceWillJoin", MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onConferenceWillJoin")))
+                .put("participantLeft", MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onParticipantLeft")))
+                .put("participantJoined", MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onParticipantJoined")))
                 .build();
     }
 }
