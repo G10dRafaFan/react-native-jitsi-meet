@@ -10,7 +10,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.facebook.react.module.annotations.ReactModule;
 
-import org.jitsi.meet.sdk.JitsiMeetViewListener;
+import com.reactnativejitsimeet.JitsiMeetViewListener;
 
 import java.util.Map;
 
