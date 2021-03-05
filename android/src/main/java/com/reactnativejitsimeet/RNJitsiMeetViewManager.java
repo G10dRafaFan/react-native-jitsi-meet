@@ -78,6 +78,15 @@ public class RNJitsiMeetViewManager extends SimpleViewManager<RNJitsiMeetView> i
                 "participantLeft",
                 event);
     }
+    
+    public void onParticipantJoined(Map<String, Object> data) {
+        WritableMap event = Arguments.createMap();
+        event.putString("url", (String) data.get("url"));
+        mReactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                mJitsiMeetViewReference.getJitsiMeetView().getId(),
+                "participantJoined",
+                event);
+    }
 
     public Map getExportedCustomBubblingEventTypeConstants() {
         return MapBuilder.builder()
