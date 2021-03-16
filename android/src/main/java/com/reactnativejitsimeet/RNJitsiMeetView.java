@@ -7,11 +7,11 @@ import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReadableMap;
 
-import com.reactnativejitsimeet.sdk.BaseReactView;
-import com.reactnativejitsimeet.sdk.JitsiMeet;
-import com.reactnativejitsimeet.sdk.JitsiMeetViewListener;
-import com.reactnativejitsimeet.sdk.ListenerUtils;
-import com.reactnativejitsimeet.sdk.log.JitsiMeetLogger;
+import org.jitsi.meet.sdk.BaseReactView;
+import org.jitsi.meet.sdk.JitsiMeet;
+import org.jitsi.meet.sdk.JitsiMeetViewListener;
+import org.jitsi.meet.sdk.ListenerUtils;
+import org.jitsi.meet.sdk.log.JitsiMeetLogger;
 
 import java.lang.reflect.Method;
 import java.util.Map;
